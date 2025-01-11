@@ -7,7 +7,7 @@ const options = {
         Authorization: key
     }
 }
-const currentPage = 1;
+
 
 
 // 친절하게 error code를 확인할 수 있는 링크 까지 던져 줌
@@ -50,5 +50,5 @@ const fetchSearchMovies = async (query, page = 1) =>{
     }
 }
 
-console.log(fetchSearchMovies("사랑").results);
-export { fetchPopularMovies };
+
+export { fetchPopularMovies, fetchSearchMovies };
