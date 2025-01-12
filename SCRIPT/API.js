@@ -12,14 +12,13 @@ const options = {
 
 // 친절하게 error code를 확인할 수 있는 링크 까지 던져 줌
 const fetchPopularMovies = async (page = 1) => {
-    const url = `https://api.themoviedb.org/3/movie/popular?language=ko-KR&${page}&region=KR`;
+    const url = `https://api.themoviedb.org/3/movie/popular?language=ko-KR&page=${page}&region=KR`;
     try {
         const response = await fetch(url, options);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status} to learn more about error codes, visit the following link : https://developer.themoviedb.org/docs/errors `)
         }
         const dataPopular = await response.json();
-        console.log(dataPopular);
         return dataPopular;
     }
     catch (error) {
@@ -31,9 +30,9 @@ const fetchPopularMovies = async (page = 1) => {
 fetchPopularMovies();
 
 
-const fetchSearchMovies = async (query, page = 1) =>{
+const fetchSearchMovies = async (query, page=1) =>{
 
-    const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=ko-KR&${page}&region=KR `
+    const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=ko-KR&page=${page}&region=KR `
     try {
         const response = await fetch(url, options);
         if (!response.ok) {
@@ -49,6 +48,8 @@ const fetchSearchMovies = async (query, page = 1) =>{
         
     }
 }
+const currentpage = 3;
+fetchSearchMovies("안녕",currentpage);
 
 
 export { fetchPopularMovies, fetchSearchMovies };

@@ -9,6 +9,7 @@
     <script type="module" src="./SCRIPT/UI.js"></script>
     <link rel="stylesheet" href="./CSS/main.css">
     <link rel="stylesheet" href="./CSS/haeder.css">
+    <link rel="stylesheet" href="./CSS/modal.css">
 </head>
 
 <body>
@@ -17,21 +18,32 @@
         <div class="header" id="header">
             <h1 class="header-title">나만의 영화관</h1>
             <div class="header-search">
-                <input type="text" class="header-input" id="header-input">
-                <button class="header-search-btn">↵</button>
+                <input type="text" class="search-input" id="search-input">
+                <button class="search-btn" id="search-btn">↵</button>
             </div>
         </div>
     </header>
     <!-- main -->
     <main>
         <div class="movie-list" id="movie-list">
-            여기 카드구역
         </div>
     </main>
     <!-- footer -->
     <footer></footer>
     <!-- modal -->
-    <div class="modal"></div>
+    <div class="modal" id="modal">
+        <div class="modal-card">
+            <div class="modal-btn">
+                <a href="#none" class="modal-bookmark">⭐</a>
+                <a href="#none" class="modal-close" id="modal-close">&times;</a>
+            </div>
+            <h1 class="modal-title">Title</h1>
+            <img class = "modal-img"src="" alt="#none">
+            <p class="modal-overview">줄거리</p>
+            <p class="modal-release">개봉날짜</p>
+            <p class="modal-vote">평점</p>
+        </div>
+    </div>
 </body>
 
 </html>

@@ -17,12 +17,12 @@
     width: 500px;
 }
 
-.header-input{
+.search-input{
     width : 90%;
     height: 30px;
 }
 
-.header-search-btn{
+.search-btn{
     width: 10%;
     box-sizing: border-box;
     padding: auto;

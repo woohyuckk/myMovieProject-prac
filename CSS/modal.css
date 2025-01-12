@@ -1,0 +1,59 @@
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-card {
+    /* modal 창 위치 */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* 요소 자체의 너비에 50% 만큼 왼쪽으로, 50%만큼 위로 요소의 중심이 부모의 중심과 똑같도록*/
+
+    /* modal 요소 배치 */
+    display: grid;
+    grid-template-rows: 10% 50% 20% 10% 10%;
+    padding: 20px;
+    width: 800px;
+    height: 800px;
+    background-color: white;
+    overflow: hidden;
+    border-radius: 24px;
+    box-sizing: border-box;
+
+}
+
+.modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.modal-title {
+    font-family: "Black Han Sans", serif;
+    font-weight: 400;
+    font-size: 48px;
+    text-align: center;
+}
+
+
+
+.modal-img {
+    padding: 20px;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+}
+
+.modal-overview{
+    margin-top: 30px;
+
+}
