@@ -8,10 +8,14 @@ const modalClose = document.getElementById('modal-close');
 const mainPage = document.querySelector('.header-title')
 const modalBookmark = document.getElementById('modal-bookmark')
 const bookmark = document.getElementById('bookmark');
+const nextPage = document.querySelector('.next-page');
+const previousPage = document.querySelector('.previous-page');
 let currentPopularMovies = [];
 let currentSearchMovies = [];
-let bookmarkData = [];
-let isSearchMode = false;
+let bookmarkMovies = [];
+let pageStatus = "";
+let currentPage = 1;
+let debounceTimer;
 
 
 const popularMoveis = async (page) => {
@@ -19,7 +23,7 @@ const popularMoveis = async (page) => {
         const movies = await fetchPopularMovies(page);
         movieList.innerHTML = "";
         currentPopularMovies = movies.results;
-
+        pageStatus = "popular";
         currentPopularMovies.forEach((movie, idx) => {
             const card = document.createElement('div');
             card.className = `movie-card ${idx}`;
@@ -50,7 +54,7 @@ const searchMovies = async (query, page) => {
         const movies = await fetchSearchMovies(query, page);
         movieList.innerHTML = "";
         currentSearchMovies = movies.results;
-        isSearchMode = true; // 검색 상태 활성화
+        pageStatus = "search"; // 검색 상태 활성화
 
 
         movies.results.forEach(movie => {
@@ -79,14 +83,32 @@ searchBtn.addEventListener('click', () => {
     searchMovies();
 })
 
-searchInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-        searchMovies();
-    }
+searchInput.addEventListener('input', (event) => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        searchMovies(); // Perform search after delay
+    }, 300);
 });
 
-// modal 
+// 현재 열어 놓은 페이지 mode 분류 
+function statusCheck(mode, movieId) {
+    switch (mode) {
+        case "search":
+            return currentSearchMovies.find(movie => movie.id == movieId)
+            break
+        case "popular":
+            return currentPopularMovies.find(movie => movie.id == movieId)
+            break
+        case "bookmark":
+            return bookmarkMovies.find(movie => movie.id == movieId)
+            break
+        default: console.log("해당하는 데이터가 없습니다.")
+            break;
+    }
+    return movieData;
+}
 
+// modal open
 movieList.addEventListener('click', function (e) {
     // movieList에 img만 클릭되도록 방지
     if (e.target.tagName !== "IMG") {
@@ -95,12 +117,14 @@ movieList.addEventListener('click', function (e) {
     }
     const movieCard = e.target.closest('.movie-card');
     const movieId = movieCard.getAttribute('data-id');
-    modal.setAttribute('data-id', movieId)
-    const movieData = isSearchMode
-        ? currentSearchMovies.find(movie => movie.id == movieId) // 검색 결과에서 찾기
-        : currentPopularMovies.find(movie => movie.id == movieId) // 인기 영화에서 찾기
-        // ? bookmarkData.find(movie => movie.id ==movieId)
-        // : console.log("찾으려는 목록이 없습니다.");
+    modal.setAttribute('data-id', movieId);
+
+    const movieData = statusCheck(pageStatus, movieId);
+    // const movieData = isSearchMode
+    //     ? currentSearchMovies.find(movie => movie.id == movieId) // 검색 결과에서 찾기
+    //     : currentPopularMovies.find(movie => movie.id == movieId) // 인기 영화에서 찾기
+    // ? bookmarkData.find(movie => movie.id ==movieId)
+    // : console.log("찾으려는 목록이 없습니다.");
     // currentSearchMovies에서 data-id와 movie.id값이 같은 array 요소를 저장
 
     if (movieData) {
@@ -115,30 +139,29 @@ movieList.addEventListener('click', function (e) {
 
 })
 
+
+
 // modalClose
 modalClose.addEventListener('click', () => {
     modal.style.display = "none";
 })
 
-// bookmark
+// bookmark add
 
 modalBookmark.addEventListener('click', (e) => {
 
     const modalCard = e.target.closest('.modal');
     const movieId = modalCard.getAttribute('data-id');
-    const selectedMovie = isSearchMode
-        ? currentSearchMovies.find(movie => movie.id == movieId) // 검색 결과에서 찾기
-        : currentPopularMovies.find(movie => movie.id == movieId); // 인기 영화에서 찾기
-
+    const selectedMovie = statusCheck(pageStatus, movieId)
     if (selectedMovie) {
-        // bookmarkData에 이미 존재하는지 확인
-        const isAlreadyBookmarked = bookmarkData.some(movie => movie.id == selectedMovie.id);
+        // bookmarkMovies에 이미 존재하는지 확인
+        const isAlreadyBookmarked = bookmarkMovies.some(movie => movie.id == selectedMovie.id);
         if (isAlreadyBookmarked) {
-            bookmarkData=bookmarkData.filter( movie => movie.id !== selectedMovie.id)
+            bookmarkMovies = bookmarkMovies.filter(movie => movie.id !== selectedMovie.id)
             alert("북마크가 해제되었습니다.")
         } else {
             // 중복되지 않으면 추가
-            bookmarkData.push(selectedMovie);
+            bookmarkMovies.push(selectedMovie);
             alert("북마크에 추가되었습니다:", selectedMovie);
         }
     } else {
@@ -146,6 +169,7 @@ modalBookmark.addEventListener('click', (e) => {
     }
 })
 
+// bookmark load
 function bookmarkList(bookmarkdata) {
     movieList.innerHTML = "";
 
@@ -164,15 +188,33 @@ function bookmarkList(bookmarkdata) {
 
 }
 
-
-bookmark.addEventListener('click',()=>{
-    console.log(bookmarkData)
-    bookmarkList(bookmarkData);
+// remoteController - to bookmarkpage
+bookmark.addEventListener('click', () => {
+    pageStatus = "bookmark"
+    bookmarkList(bookmarkMovies);
 })
 
+// remoteController - to nextpage
+nextPage.addEventListener('click', () => {
+    currentPage++;
+    if (pageStatus == "popular") popularMoveis(currentPage);
+    else if (pageStatus == "search") searchMovies("", currentPage)
+    else if (pageStatus == "bookmark") alert("북마크는 이전,다음페이지가 없습니다.")
+})
+previousPage.addEventListener('click', () => {
+    if (currentPage) {
+        currentPage--;
+        console.log(currentPage);
+        if (pageStatus == "popular") popularMoveis(currentPage);
+        else if (pageStatus == "search") searchMovies("", currentPage)
+        else if (pageStatus == "bookmark") alert("북마크는 이전,다음페이지가 없습니다.")
+    }
+    else return
+})
 
 // to main
 mainPage.addEventListener('click', () => {
-    isSearchMode = false; // 검색 상태 초기화
+    pageStatus = "popular" // 검색 상태 초기화
     popularMoveis();
 })
+
