@@ -19,20 +19,22 @@ body {
 }
 
 .movie-card {
+    /* item 정렬 순서  */
     display: grid;
     grid-template-rows: 75% 15% 5%;
     align-items: center;
-    /* item 정렬 순서  */
     background-color: rgb(0, 0, 0);
+    /* font 설정 */
     text-align: center;
     box-sizing: border-box;
     color: rgb(94, 183, 224);
-    /* font 설정 */
+    
 
     margin: 10px;
     box-shadow: 2px 2px 10px rgb(226, 245, 121);
     border-radius: 10px;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .movie-card>IMG {

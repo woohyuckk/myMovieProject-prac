@@ -15,7 +15,9 @@ let currentSearchMovies = [];
 let bookmarkMovies = [];
 let pageStatus = "";
 let currentPage = 1;
+let totalPage;
 let debounceTimer;
+
 
 
 const popularMoveis = async (page) => {
@@ -23,6 +25,7 @@ const popularMoveis = async (page) => {
         const movies = await fetchPopularMovies(page);
         movieList.innerHTML = "";
         currentPopularMovies = movies.results;
+        totalPage = movies.total_pages
         pageStatus = "popular";
         currentPopularMovies.forEach((movie, idx) => {
             const card = document.createElement('div');
@@ -38,7 +41,7 @@ const popularMoveis = async (page) => {
         });
     }
     catch (error) {
-        throw error;
+
     }
 }
 popularMoveis();
@@ -47,13 +50,14 @@ const searchMovies = async (query, page) => {
 
     query = document.getElementById('search-input').value.toLowerCase();
     if (!query) {
-        alert('검색어를 입력력해 주세요')
+        popularMoveis();
         return
     }
     try {
         const movies = await fetchSearchMovies(query, page);
         movieList.innerHTML = "";
         currentSearchMovies = movies.results;
+        totalPage = movies.total_pages
         pageStatus = "search"; // 검색 상태 활성화
 
 
@@ -78,14 +82,16 @@ const searchMovies = async (query, page) => {
 }
 
 
-
 searchBtn.addEventListener('click', () => {
+    currentPage=1;
     searchMovies();
 })
 
 searchInput.addEventListener('input', (event) => {
+    
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
+        currentPage=1;
         searchMovies(); // Perform search after delay
     }, 300);
 });
@@ -95,13 +101,13 @@ function statusCheck(mode, movieId) {
     switch (mode) {
         case "search":
             return currentSearchMovies.find(movie => movie.id == movieId)
-            break
+
         case "popular":
             return currentPopularMovies.find(movie => movie.id == movieId)
-            break
+
         case "bookmark":
             return bookmarkMovies.find(movie => movie.id == movieId)
-            break
+
         default: console.log("해당하는 데이터가 없습니다.")
             break;
     }
@@ -184,7 +190,7 @@ function bookmarkList(bookmarkdata) {
                 <p> 개봉일 : ${movie.release_date}</p>
             `;
         movieList.appendChild(card);
-    });
+    })
 
 }
 
@@ -196,25 +202,31 @@ bookmark.addEventListener('click', () => {
 
 // remoteController - to nextpage
 nextPage.addEventListener('click', () => {
-    currentPage++;
-    if (pageStatus == "popular") popularMoveis(currentPage);
-    else if (pageStatus == "search") searchMovies("", currentPage)
-    else if (pageStatus == "bookmark") alert("북마크는 이전,다음페이지가 없습니다.")
+    if (currentPage < totalPage) {
+        currentPage++;
+        if (pageStatus == "popular") popularMoveis(currentPage);
+        else if (pageStatus == "search") {
+
+            searchMovies("", currentPage)
+        }
+        else if (pageStatus == "bookmark") alert("북마크는 이전,다음페이지가 없습니다.")
+    }
+    else return alert("마지막 페이지 입니다.")
 })
 previousPage.addEventListener('click', () => {
-    if (currentPage) {
+    if (currentPage > 1) {
         currentPage--;
-        console.log(currentPage);
         if (pageStatus == "popular") popularMoveis(currentPage);
         else if (pageStatus == "search") searchMovies("", currentPage)
         else if (pageStatus == "bookmark") alert("북마크는 이전,다음페이지가 없습니다.")
     }
-    else return
+    else return alert("첫페이지 입니다.")
 })
 
 // to main
 mainPage.addEventListener('click', () => {
     pageStatus = "popular" // 검색 상태 초기화
     popularMoveis();
+    currentPage = 1;
 })
 
