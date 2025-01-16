@@ -10,6 +10,7 @@
     font-family: "Black Han Sans", serif;
     font-weight: 400;
     font-size: 72px;
+    cursor: pointer;
 }
 
 .header-search {
@@ -29,4 +30,5 @@
     padding: auto;
     font-size: 24px;
     font-weight: bold;
+    cursor: pointer;
 }
