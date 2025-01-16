@@ -117,13 +117,16 @@ function statusCheck(mode, movieId) {
 // modal open
 movieList.addEventListener('click', function (e) {
     // movieList에 img만 클릭되도록 방지
-    if (e.target.tagName !== "IMG") {
-        e.stopPropagation();
-        return
-    }
     const movieCard = e.target.closest('.movie-card');
     const movieId = movieCard.getAttribute('data-id');
     modal.setAttribute('data-id', movieId);
+    
+    if (!movieCard) {
+        console.log(e.target)
+        e.stopPropagation();
+        return
+    }
+    
 
     const movieData = statusCheck(pageStatus, movieId);
     // const movieData = isSearchMode
