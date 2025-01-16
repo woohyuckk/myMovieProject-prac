@@ -12,9 +12,21 @@ const nextPage = document.querySelector(".next-page");
 const previousPage = document.querySelector(".previous-page");
 const delay = 300;
 
+/* 현재 currentPopularMovies 와 currentSearchMovies, bookmarkList를 나누셨는데,
+    이를 나눈 이유가 각 page 상태별 다른 곳에서 추출하려고 한 것 같습니다.
+    하지만 한 페이지에 결국 하나의 list만 사용됨으로 이를 하나로 currentMovieList로 줄일 수 있을 것 같습니다.
+
+    그래서 1개의 리스트로 줄이는 것을 추천하지만, 이 또한 modal을 띄워주기 위해서만 사용되는 것 같습니다.
+    
+    그렇다면 movie-id를 이용하여 새로 영화 상세 내용을 불러오는 방법을 추천합니다!
+
+    리스트의 메모리 낭비가 걱정되고 또한 모달을 띄우기 위해 매번 find함수를 사용하는게 좋지 않아보입니다.
+    사실 한 페이지당 그려지는 아이템이 20개 이므로 그리 의미는 없긴 합니다!
+
+    그래서 api를 불러오는 것이 힘들다고 한다면 1개의 리스트로 줄이는 것을 추천드립니다!
+*/
 let currentPopularMovies = [];
 let currentSearchMovies = [];
-
 let bookmarkList = JSON.parse(localStorage.getItem("bookmarkMovies")) || [];
 console.log(bookmarkList);
 let pageStatus = "";
@@ -80,11 +92,14 @@ function bookmarkPage(bookmarkdata) {
     makeMovieCards(bookmarkdata);
 }
 
+/* 필요없으면 삭제합시다. */
 //  버튼 영화 검색 - const, searchMovies
 searchBtn.addEventListener("click", () => {
     currentPage = 1;
     searchMovies();
 });
+
+/* debounce를 Utils로 추출하고 전역에 잇는 debounceTimer 지웁시다! */
 // input형 영화검색 - const, searchMovies
 searchInput.addEventListener("input", () => {
     clearTimeout(debounceTimer);
@@ -94,6 +109,10 @@ searchInput.addEventListener("input", () => {
     }, delay);
 });
 
+/* 위에서 설명했듯이 각 무비 정볼르 1개로 불러온다면 이 함수에 조건문이 필요없어질 것 같습니다.
+    또한 default의 에러처리는 좋습니다. 하지만 콘솔로그는 오직 개발에서만 사용될 코드이므로 
+    여기서는 alert를 사용하는게 좋을 것 같습니다. 
+*/
 // 현재 메인 페이지 mode 분류 (main, search, bookmark)
 function statusCheck(mode, movieId) {
     switch (mode) {
@@ -117,16 +136,22 @@ function statusCheck(mode, movieId) {
 
 movieList.addEventListener("click", function (e) {
     const movieCard = e.target.closest(".movie-card");
+    /* movieCard가 없는 경우 undefined에서 getAttribute를 하는 것이라 에러가 날 것 같습니다.
+    따라서 if 문의 !movieCard를 여기로 옮겨서 movieCard가 없을 경우 바로 return 하도록 코드를 작성하는 것이 좋을 것 같습니다. */
     const movieId = movieCard.getAttribute("data-id");
+    /* 여기서는 전역에 modal을 선언하여 가져오는 것이 아닌 이 영역에서 참조해서 사용하는 것이 좋을 것 같습니다. */
     modal.setAttribute("data-id", movieId);
 
+    /* e.stopPropagation을 사용한 분명한 의도가 없어보입니다. 그렇다면 삭제하는 것을 추천합니다. */
     if (!movieCard) {
         e.stopPropagation();
         return;
     }
     const movieData = statusCheck(pageStatus, movieId);
 
+    /* 여기서는 element를 하나씩 참조하는 것보다 템플릿 리터럴로 html 구문을 작성한다음 innerHTML에 넣어주면 코드 가독성이 좋을 것 같아요 */
     if (movieData) {
+        /* 의미 없는 참조? 선언? 삭제 부탁! */
         fucntion;
         // modal 업데이트
         modal.querySelector(".modal-title").textContent = movieData.title;
@@ -151,6 +176,7 @@ modalClose.addEventListener("click", () => {
 });
 
 // bookmark add - const, statusCheck, bookmarkPage
+/* 이쪽에서 코드 분리할 수 있는게 많을 것 같습니다. 한번 생각해보시면 좋을 것 같아요! */
 modalBookmark.addEventListener("click", (e) => {
     const modalCard = e.target.closest(".modal");
     const movieId = modalCard.getAttribute("data-id");
@@ -180,7 +206,9 @@ modalBookmark.addEventListener("click", (e) => {
             alert("북마크에 추가되었습니다:", selectedMovie);
         }
     } else {
-        console.warn("영화를 찾을 수 없습니다.");
+        // 중복되지 않으면 추가
+        bookmarkMovies.push(selectedMovie);
+        alert("북마크에 추가되었습니다:", selectedMovie);
     }
 });
 
