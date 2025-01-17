@@ -25,6 +25,7 @@
 <br>
 
 ## 📁 프로젝트 구조
+```markdown
 📁 프로젝트 구조
 │
 ├── 📁 SCRIPT/
@@ -39,9 +40,8 @@
 │   ├── 📁 fonts/
 │   ├── *.css (스타일 파일들)
 │
-├── 📁 types/
-├── 📁 constants/
 ├── index.html
+```
 
 ## 파일 및 디렉토리 목록
 - **index.html**: 프로젝트의 메인 HTML 파일로, UI의 기본 구조를 정의.
