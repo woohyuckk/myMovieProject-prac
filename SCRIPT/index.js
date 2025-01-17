@@ -5,12 +5,13 @@ import { debounce } from "./debounce.util";
 function renderMovieList(movieInfos) {
     const movieCardListEl = movieInfos
         .map(
-            (movieInfo, idx) =>
-                `<div class="movie-card ${idx}" data-id="${movieInfo.id}">
-              <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title} Poster">
-              <p>${movie.title}</p>
-              <p> 개봉일 : ${movie.release_date}</p>
-          </div>`
+            (movieInfo, idx) => `
+            <div class="movie-card ${idx}" data-id="${movieInfo.id}">
+            <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title} Poster">
+            <p>${movie.title}</p>
+            <p> 개봉일 : ${movie.release_date}</p>
+            </div>
+            `
         )
         .join("");
     document.getElementById("movie-list").innerHTML = movieCardListEl;
@@ -24,7 +25,6 @@ async function renderPopularMovies() {
         window.totalPage = response.total_pages;
         drawMovieList(response.results);
     } catch (e) {
-        // 속성이 이게 맞는지는 모르겠습니다.
         alert(e.status_message);
     }
 }
@@ -38,7 +38,6 @@ async function renderSearchMovies() {
         window.totalPage = response.total_pages;
         drawMovieList(response.results);
     } catch (e) {
-        // 속성이 이게 맞는지는 모르겠습니다.
         alert(e.status_message);
     }
 }

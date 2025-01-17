@@ -1,4 +1,5 @@
 import { fetchPopularMovies, fetchSearchMovies } from "./API.js";
+import { debounce } from "./debounce.util.js";
 
 const movieList = document.getElementById("movie-list");
 const searchInput = document.getElementById("search-input");
@@ -10,7 +11,7 @@ const modalBookmark = document.getElementById("modal-bookmark");
 const bookmark = document.getElementById("bookmark");
 const nextPage = document.querySelector(".next-page");
 const previousPage = document.querySelector(".previous-page");
-const delay = 300;
+
 
 /* 현재 currentPopularMovies 와 currentSearchMovies, bookmarkList를 나누셨는데,
     이를 나눈 이유가 각 page 상태별 다른 곳에서 추출하려고 한 것 같습니다.
@@ -28,11 +29,10 @@ const delay = 300;
 let currentPopularMovies = [];
 let currentSearchMovies = [];
 let bookmarkList = JSON.parse(localStorage.getItem("bookmarkMovies")) || [];
-console.log(bookmarkList);
 let pageStatus = "";
 let currentPage = 1;
 let totalPage;
-let debounceTimer;
+
 
 // 영화카드 생성 -> const 만쓴다.
 function makeMovieCards(movies) {
@@ -50,7 +50,7 @@ function makeMovieCards(movies) {
     });
 }
 
-// mainPage load - const, fetchPopularMovies, makeMovieCards
+// mainPage load - 메인페이지를 로드 const, fetchPopularMovies, makeMovieCards
 const popularMovies = async (page) => {
     try {
         const movies = await fetchPopularMovies(page);
@@ -66,7 +66,7 @@ const popularMovies = async (page) => {
     }
 };
 
-// searchMovies load - const, popularMovies, fetchSearchMovies, makeMovieCards
+// searchMovies load - 검색페이지 화면을 로드  const, popularMovies, fetchSearchMovies, makeMovieCards
 const searchMovies = async (query, page) => {
     query = document.getElementById("search-input").value.toLowerCase();
     if (!query) {
@@ -92,27 +92,17 @@ function bookmarkPage(bookmarkdata) {
     makeMovieCards(bookmarkdata);
 }
 
-/* 필요없으면 삭제합시다. */
-//  버튼 영화 검색 - const, searchMovies
-searchBtn.addEventListener("click", () => {
+const debouncedSearch = debounce(()=>{
     currentPage = 1;
-    searchMovies();
+    searchMovies(); 
 });
+// 영화검색 - const, searchMovies
+searchInput.addEventListener("input", debouncedSearch);
 
-/* debounce를 Utils로 추출하고 전역에 잇는 debounceTimer 지웁시다! */
-// input형 영화검색 - const, searchMovies
-searchInput.addEventListener("input", () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-        currentPage = 1;
-        searchMovies(); // Perform search after delay
-    }, delay);
-});
 
-/* 위에서 설명했듯이 각 무비 정볼르 1개로 불러온다면 이 함수에 조건문이 필요없어질 것 같습니다.
-    또한 default의 에러처리는 좋습니다. 하지만 콘솔로그는 오직 개발에서만 사용될 코드이므로 
-    여기서는 alert를 사용하는게 좋을 것 같습니다. 
+/* 위에서 설명했듯이 각 무비 정보를 1개로 불러온다면 이 함수에 조건문이 필요없어질 것 같습니다.
 */
+
 // 현재 메인 페이지 mode 분류 (main, search, bookmark)
 function statusCheck(mode, movieId) {
     switch (mode) {
@@ -126,7 +116,7 @@ function statusCheck(mode, movieId) {
             return bookmarkList.find((movie) => movie.id == movieId);
 
         default:
-            console.log("해당하는 데이터가 없습니다.");
+            alert("해당하는 데이터가 없습니다.");
             break;
     }
     return movieData;
@@ -136,23 +126,18 @@ function statusCheck(mode, movieId) {
 
 movieList.addEventListener("click", function (e) {
     const movieCard = e.target.closest(".movie-card");
+    if (!movieCard) {
+        return;
+    }
     /* movieCard가 없는 경우 undefined에서 getAttribute를 하는 것이라 에러가 날 것 같습니다.
     따라서 if 문의 !movieCard를 여기로 옮겨서 movieCard가 없을 경우 바로 return 하도록 코드를 작성하는 것이 좋을 것 같습니다. */
     const movieId = movieCard.getAttribute("data-id");
     /* 여기서는 전역에 modal을 선언하여 가져오는 것이 아닌 이 영역에서 참조해서 사용하는 것이 좋을 것 같습니다. */
     modal.setAttribute("data-id", movieId);
-
-    /* e.stopPropagation을 사용한 분명한 의도가 없어보입니다. 그렇다면 삭제하는 것을 추천합니다. */
-    if (!movieCard) {
-        e.stopPropagation();
-        return;
-    }
     const movieData = statusCheck(pageStatus, movieId);
 
     /* 여기서는 element를 하나씩 참조하는 것보다 템플릿 리터럴로 html 구문을 작성한다음 innerHTML에 넣어주면 코드 가독성이 좋을 것 같아요 */
     if (movieData) {
-        /* 의미 없는 참조? 선언? 삭제 부탁! */
-        fucntion;
         // modal 업데이트
         modal.querySelector(".modal-title").textContent = movieData.title;
         modal.querySelector(
@@ -239,7 +224,7 @@ previousPage.addEventListener("click", () => {
     } else return alert("첫페이지 입니다.");
 });
 
-// to main
+// to main - Title누를시 메인 화면으로 이동 
 mainPageTitle.addEventListener("click", () => {
     pageStatus = "popular"; // 검색 상태 초기화
     popularMovies();
