@@ -45,7 +45,7 @@
 
 ## 파일 및 디렉토리 목록
 - **index.html**: 프로젝트의 메인 HTML 파일로, UI의 기본 구조를 정의.
-- javscript
+
 - **UI.js**: 사용자 인터페이스와 관련된 JavaScript 파일.
 - **API.js**: API 호출 및 데이터 처리와 관련된 JavaScript 파일.
 - **index.js** : 메인화면 호출관련된 JavaScript 파일**(미적용)**
